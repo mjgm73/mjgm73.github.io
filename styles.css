@@ -1,0 +1,456 @@
+:root {
+    --grupo-a: #e3f2fd;
+    --grupo-b: #e8f5e9;
+    --grupo-c: #fff3e0;
+    --grupo-d: #fce4ec;
+    --grupo-libre: #f5f5f5;
+}
+
+body {
+    background-color: #f8f9fa;
+    padding-bottom: 20px;
+}
+
+.container {
+    max-width: 100%;
+}
+
+.header {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    padding: 20px 0;
+    margin-bottom: 20px;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+    border: none;
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+}
+
+.tabla-turnos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.tabla-turnos th, .tabla-turnos td {
+    border: 1px solid #dee2e6;
+    padding: 8px 4px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.tabla-turnos th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.tabla-turnos td {
+    height: 40px;
+}
+
+/* Colores por GRUPO */
+.grupo-A {
+    background-color: var(--grupo-a) !important;
+    font-weight: bold;
+}
+
+.grupo-B {
+    background-color: var(--grupo-b) !important;
+    font-weight: bold;
+}
+
+.grupo-C {
+    background-color: var(--grupo-c) !important;
+    font-weight: bold;
+}
+
+.grupo-D {
+    background-color: var(--grupo-d) !important;
+    font-weight: bold;
+}
+
+.grupo-libre {
+    background-color: var(--grupo-libre) !important;
+}
+
+.dia-actual {
+    background-color: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+}
+
+.header-fijo {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: white;
+}
+
+.contador-info {
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.vista-anual {
+    overflow-x: auto;
+}
+
+.mes-anual {
+    margin-bottom: 30px;
+}
+
+.nav-tabs .nav-link.active {
+    font-weight: bold;
+    border-bottom: 3px solid #0d6efd;
+}
+
+.btn-group-vertical .btn {
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+.legend {
+    padding: 10px 0;
+}
+
+.legend-item {
+    display: inline-block;
+    margin-right: 15px;
+    font-size: 0.85rem;
+}
+
+.legend-color {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+.legend-color.grupo-A {
+    background-color: var(--grupo-a);
+}
+
+.legend-color.grupo-B {
+    background-color: var(--grupo-b);
+}
+
+.legend-color.grupo-C {
+    background-color: var(--grupo-c);
+}
+
+.legend-color.grupo-D {
+    background-color: var(--grupo-d);
+}
+
+.legend-color.grupo-libre {
+    background-color: var(--grupo-libre);
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .tabla-turnos {
+        font-size: 0.7rem;
+    }
+    
+    .container {
+        max-width: 100%;
+    }
+}
+
+/* Modo oscuro */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark-mode .card-header {
+    background-color: #2d2d2d;
+    border-bottom: 1px solid #444;
+}
+
+body.dark-mode .tabla-turnos th {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .contador-info {
+    background-color: #2d2d2d;
+}
+
+
+/* Tarjetas de grupos */
+.grupo-A-card {
+    background-color: var(--grupo-a);
+    border-left: 4px solid #1976d2;
+}
+
+.grupo-B-card {
+    background-color: var(--grupo-b);
+    border-left: 4px solid #388e3c;
+}
+
+.grupo-C-card {
+    background-color: var(--grupo-c);
+    border-left: 4px solid #f57c00;
+}
+
+.grupo-D-card {
+    background-color: var(--grupo-d);
+    border-left: 4px solid #c2185b;
+}
+
+.grupo-A-card .card-title {
+    color: #1565c0;
+    font-weight: bold;
+}
+
+.grupo-B-card .card-title {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.grupo-C-card .card-title {
+    color: #ef6c00;
+    font-weight: bold;
+}
+
+.grupo-D-card .card-title {
+    color: #ad1457;
+    font-weight: bold;
+}
+
+.grupo-A-card .card-text {
+    color: #424242;
+}
+
+.grupo-B-card .card-text {
+    color: #424242;
+}
+
+.grupo-C-card .card-text {
+    color: #424242;
+}
+
+.grupo-D-card .card-text {
+    color: #424242;
+}
+
+/* Para impresión - mantener colores de grupos */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .tabla-turnos {
+        font-size: 0.7rem;
+    }
+    
+    .container {
+        max-width: 100%;
+    }
+    
+    /* Mantener colores de grupos en impresión */
+    .grupo-A {
+        background-color: var(--grupo-a) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .grupo-B {
+        background-color: var(--grupo-b) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .grupo-C {
+        background-color: var(--grupo-c) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .grupo-D {
+        background-color: var(--grupo-d) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .grupo-libre {
+        background-color: var(--grupo-libre) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .dia-actual {
+        background-color: #fff3cd !important;
+        border: 2px solid #ffc107 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    /* Colores para las tarjetas de grupos en impresión */
+    .grupo-A-card {
+        background-color: var(--grupo-a) !important;
+        border-left: 4px solid #1976d2 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .grupo-B-card {
+        background-color: var(--grupo-b) !important;
+        border-left: 4px solid #388e3c !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .grupo-C-card {
+        background-color: var(--grupo-c) !important;
+        border-left: 4px solid #f57c00 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    .grupo-D-card {
+        background-color: var(--grupo-d) !important;
+        border-left: 4px solid #c2185b !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    /* Asegurar que los textos se vean bien en impresión */
+    .grupo-A-card .card-title,
+    .grupo-B-card .card-title,
+    .grupo-C-card .card-title,
+    .grupo-D-card .card-title {
+        color: #000 !important;
+        font-weight: bold !important;
+    }
+}
+
+/* Fuera del media print - reglas normales */
+.grupo-A {
+    background-color: var(--grupo-a) !important;
+}
+
+.grupo-B {
+    background-color: var(--grupo-b) !important;
+}
+
+.grupo-C {
+    background-color: var(--grupo-c) !important;
+}
+
+.grupo-D {
+    background-color: var(--grupo-d) !important;
+}
+
+.grupo-libre {
+    background-color: var(--grupo-libre) !important;
+}
+
+.dia-actual {
+    background-color: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+}
+
+/* Tarjetas de grupos */
+.grupo-A-card {
+    background-color: var(--grupo-a);
+    border-left: 4px solid #1976d2;
+}
+
+.grupo-B-card {
+    background-color: var(--grupo-b);
+    border-left: 4px solid #388e3c;
+}
+
+.grupo-C-card {
+    background-color: var(--grupo-c);
+    border-left: 4px solid #f57c00;
+}
+
+.grupo-D-card {
+    background-color: var(--grupo-d);
+    border-left: 4px solid #c2185b;
+}
+
+.grupo-A-card .card-title {
+    color: #1565c0;
+    font-weight: bold;
+}
+
+.grupo-B-card .card-title {
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.grupo-C-card .card-title {
+    color: #ef6c00;
+    font-weight: bold;
+}
+
+.grupo-D-card .card-title {
+    color: #ad1457;
+    font-weight: bold;
+}
+
+/* Etiqueta del nombre - visible solo en impresión */
+.etiqueta-nombre {
+    display: none;
+}
+
+.etiqueta-nombre .mb-0 {
+    margin-bottom: 0 !important;
+}
+
+@media print {
+    .etiqueta-nombre {
+        display: block !important;
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        font-size: 12px;
+        color: #333;
+        font-family: Arial, sans-serif;
+        z-index: 1000;
+    }
+    
+    .no-imprimir {
+        display: none !important;
+    }
+}

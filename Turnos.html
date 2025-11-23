@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Rotación de Turnos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .configuracion-grupos {
+            max-width: 100%;
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .grupo-editable {
+            border-left: 4px solid;
+            padding: 15px;
+            margin: 15px 0;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .grupo-editable input {
+            margin: 5px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: calc(100% - 20px);
+        }
+        .grupo-editable button {
+            margin: 5px;
+            padding: 6px 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .botones-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .botones-container button {
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-guardar { background: #28a745; color: white; }
+        .btn-agregar { background: #007bff; color: white; }
+        .btn-reiniciar { background: #ffc107; color: black; }
+        
+        /* Ocultar secciones por defecto */
+        #vistaGestionGrupos {
+            display: none;
+        }
+        
+        /* Alineación de botones en el header */
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        
+        /* Colores dinámicos para las tarjetas de grupos */
+        .grupo-card {
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+        
+        /* Leyenda con colores dinámicos */
+        .legend-color-dinamico {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="row align-items-center">
+    <div class="col-md-8">
+        <h1><i class="fas fa-calendar-alt me-2"></i>Sistema de Rotación de Turnos</h1>
+        <p class="mb-0">Visualización de turnos por mes y año completo</p>
+    </div>
+    <div class="col-md-4">
+        <div class="header-buttons">
+            <button class="btn btn-light no-print" onclick="imprimirTabla()">
+                <i class="fas fa-print me-1"></i> Print
+            </button>
+            
+            <button class="btn btn-info no-print" onclick="mostrarGestionGrupos()">
+                <i class="fas fa-users-cog me-1"></i> Grupos
+            </button>
+            
+            <button class="btn btn-outline-light no-print" onclick="toggleModoOscuro()">
+                <i class="fas fa-moon me-1"></i> Modo
+            </button>
+            
+            <button onclick="exportarAExcel()" class="btn btn-success no-print">
+                <i class="fas fa-file-excel me-1"></i> Excel
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.header-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.header-buttons .btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+</style>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- VISTA PRINCIPAL (Turnos) -->
+        <div id="vistaPrincipal">
+            <div class="card no-print">
+                <div class="card-header">
+                    <i class="fas fa-cogs me-2"></i>Configuración de Visualización
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="vistaSeleccionada" class="form-label">Tipo de Vista</label>
+                            <select id="vistaSeleccionada" class="form-select" onchange="cambiarVista()">
+                                <option value="mes">Vista Mensual</option>
+                                <option value="anio">Vista Anual</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="anioSeleccionado" class="form-label">Año</label>
+                            <select id="anioSeleccionado" class="form-select" onchange="generarTabla()">
+                                <!-- Opciones se llenan dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="col-md-4" id="mesSelectorContainer">
+                            <label for="mesSeleccionado" class="form-label">Mes</label>
+                            <select id="mesSeleccionado" class="form-select" onchange="generarTabla()">
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="legend" id="leyenda-grupos">
+                                <strong>Leyenda de Grupos:</strong>
+                                <!-- Se generará dinámicamente desde JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span id="tituloMes"><i class="fas fa-calendar me-2"></i>Cargando...</span>
+                    <span class="contador-info" id="contadorInfo"></span>
+                </div>
+                <div class="card-body p-0">
+                    <div id="tablaTurnosContainer">
+                        <!-- Aquí se generará la tabla dinámicamente -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card no-print">
+                <div class="card-header">
+                    <i class="fas fa-users me-2"></i>Información de Grupos
+                </div>
+                <div class="card-body">
+                    <div class="row" id="info-grupos-container">
+                        <!-- Se generará dinámicamente desde JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA GESTIÓN DE GRUPOS -->
+        <!-- VISTA GESTIÓN DE GRUPOS -->
+<div id="vistaGestionGrupos">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-users-cog me-2"></i>Gestión de Grupos</span>
+            <button class="btn btn-secondary" onclick="mostrarVistaPrincipal()">
+                <i class="fas fa-arrow-left me-1"></i> Volver a Turnos
+            </button>
+        </div>
+        <div class="card-body">
+            <!-- Panel de Acceso Admin -->
+            <div id="panelAccesoAdmin" class="text-center mb-4 p-4 border rounded">
+                <h5><i class="fas fa-lock me-2"></i>Acceso Administrativo</h5>
+                <p class="text-muted">Ingrese la contraseña para gestionar los grupos</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="password" id="inputPasswordAdmin" class="form-control" 
+                                   placeholder="Contraseña de administrador">
+                            <button class="btn btn-primary" onclick="verificarAccesoAdmin()">
+                                <i class="fas fa-key me-1"></i> Acceder
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Panel de Gestión (oculto inicialmente) -->
+            <div id="panelGestionGrupos" style="display: none;">
+                <div class="configuracion-grupos">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Modo Administrador</strong> - Aquí puedes modificar los grupos, cambiar integrantes, colores y agregar nuevos grupos.
+                    </div>
+                    
+                    <div id="grupos-container">
+                        <!-- Los grupos se generarán dinámicamente aquí -->
+                    </div>
+                    
+                    <div class="botones-container">
+                        <button class="btn-agregar" onclick="agregarNuevoGrupo()">
+                            <i class="fas fa-plus me-1"></i>Agregar Grupo
+                        </button>
+                        <button class="btn-guardar" onclick="guardarCambiosGrupos()">
+                            <i class="fas fa-save me-1"></i>Guardar Cambios
+                        </button>
+                        <button class="btn-reiniciar" onclick="reiniciarGrupos()">
+                            <i class="fas fa-undo me-1"></i>Reiniciar a Valores por Defecto
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="cerrarSesionAdmin()">
+                            <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        
+        <!-- Etiqueta del nombre para impresión -->
+        <div class="etiqueta-nombre">
+            <p class="mb-0">Ing. Miguel J. Gonzalez M.</p>
+        </div>
+    </div>
+
+    <script src="turnos-system.js"></script>
+	
+    <script>
+	
+	// Configuración de administrador
+const ADMIN_CONFIG = {
+    password: "admin123", // Puedes cambiar esta contraseña
+    sessionTimeout: 30 * 60 * 1000, // 30 minutos
+    sessionKey: "adminSession"
+};
+
+// Estado de autenticación
+let isAdminAuthenticated = false;
+
+// Función para verificar acceso admin
+function verificarAccesoAdmin() {
+    const passwordInput = document.getElementById('inputPasswordAdmin');
+    const password = passwordInput.value.trim();
+    
+    if (password === ADMIN_CONFIG.password) {
+        // Acceso concedido
+        isAdminAuthenticated = true;
+        mostrarPanelGestion();
+        iniciarSesionAdmin();
+        passwordInput.value = ''; // Limpiar campo
+    } else {
+        // Acceso denegado
+        alert('❌ Contraseña incorrecta. Intente nuevamente.');
+        passwordInput.value = '';
+        passwordInput.focus();
+    }
+}
+
+// Función para mostrar el panel de gestión
+function mostrarPanelGestion() {
+    document.getElementById('panelAccesoAdmin').style.display = 'none';
+    document.getElementById('panelGestionGrupos').style.display = 'block';
+    mostrarInterfazGrupos(); // Cargar la interfaz de grupos
+}
+
+// Función para ocultar el panel de gestión
+function ocultarPanelGestion() {
+    document.getElementById('panelAccesoAdmin').style.display = 'block';
+    document.getElementById('panelGestionGrupos').style.display = 'none';
+    isAdminAuthenticated = false;
+}
+
+// Función para iniciar sesión admin
+function iniciarSesionAdmin() {
+    const sessionData = {
+        timestamp: new Date().getTime(),
+        authenticated: true
+    };
+    localStorage.setItem(ADMIN_CONFIG.sessionKey, JSON.stringify(sessionData));
+}
+
+// Función para verificar sesión activa
+function verificarSesionActiva() {
+    const sessionData = localStorage.getItem(ADMIN_CONFIG.sessionKey);
+    if (sessionData) {
+        const data = JSON.parse(sessionData);
+        const now = new Date().getTime();
+        
+        if (now - data.timestamp < ADMIN_CONFIG.sessionTimeout) {
+            isAdminAuthenticated = true;
+            return true;
+        } else {
+            // Sesión expirada
+            localStorage.removeItem(ADMIN_CONFIG.sessionKey);
+        }
+    }
+    return false;
+}
+
+// Función para cerrar sesión admin
+function cerrarSesionAdmin() {
+    isAdminAuthenticated = false;
+    localStorage.removeItem(ADMIN_CONFIG.sessionKey);
+    ocultarPanelGestion();
+    alert('🔒 Sesión de administrador cerrada.');
+}
+
+// Modificar la función mostrarGestionGrupos
+function mostrarGestionGrupos() {
+    document.getElementById('vistaPrincipal').style.display = 'none';
+    document.getElementById('vistaGestionGrupos').style.display = 'block';
+    
+    // Verificar si ya hay sesión activa
+    if (verificarSesionActiva()) {
+        mostrarPanelGestion();
+    } else {
+        ocultarPanelGestion();
+    }
+}
+
+// Modificar la función mostrarInterfazGrupos para quitar botones de eliminar
+function mostrarInterfazGrupos() {
+    const container = document.getElementById('grupos-container');
+    container.innerHTML = '';
+    
+    Object.keys(Grupo).forEach(grupoKey => {
+        const grupo = Grupo[grupoKey];
+        container.innerHTML += `
+            <div class="grupo-editable" style="border-left-color: ${grupo.color}">
+                <h5>Grupo ${grupoKey}</h5>
+                <label>Integrantes:</label>
+                <input type="text" value="${grupo.integrantes}" 
+                       onchange="actualizarGrupo('${grupoKey}', 'integrantes', this.value)"
+                       placeholder="Integrantes del grupo">
+                <label>Color:</label>
+                <input type="color" value="${grupo.color}" 
+                       onchange="actualizarGrupo('${grupoKey}', 'color', this.value)">
+                <!-- Botón de eliminar REMOVIDO -->
+            </div>
+        `;
+    });
+}
+
+// Modificar la función agregarNuevoGrupo para verificar permisos
+function agregarNuevoGrupo() {
+    if (!isAdminAuthenticated) {
+        alert('🔒 Acceso denegado. Debe iniciar sesión como administrador.');
+        return;
+    }
+    
+    const nuevoKey = prompt("Ingresa la letra del nuevo grupo (E, F, G, etc.):");
+    if (nuevoKey && nuevoKey.trim() !== "") {
+        const key = nuevoKey.trim().toUpperCase();
+        if (!Grupo[key]) {
+            Grupo[key] = {
+                grupo: key,
+                integrantes: "Nuevo integrante 1 - Nuevo integrante 2",
+                clase: `grupo-${key}`,
+                color: "#" + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')
+            };
+            mostrarInterfazGrupos();
+        } else {
+            alert(`El grupo ${key} ya existe.`);
+        }
+    }
+}
+
+// Modificar la función reiniciarGrupos para verificar permisos
+function reiniciarGrupos() {
+    if (!isAdminAuthenticated) {
+        alert('🔒 Acceso denegado. Debe iniciar sesión como administrador.');
+        return;
+    }
+    
+    if (confirm('¿Restaurar grupos a valores por defecto? Se perderán los cambios no guardados.')) {
+        Grupo = {
+            A: { 
+                grupo: "A", 
+                integrantes: "Juan Cachope - Tiago Santana", 
+                clase: "grupo-A",
+                color: "#e3f2fd"
+            },
+            B: { 
+                grupo: "B", 
+                integrantes: "Alvaro Aguilar - Arnaldo Larroza", 
+                clase: "grupo-B",
+                color: "#e8f5e9"
+            },
+            C: { 
+                grupo: "C", 
+                integrantes: "Lisandro Centurion - Abel Salinas", 
+                clase: "grupo-C",
+                color: "#fff3e0"
+            },
+            D: { 
+                grupo: "D", 
+                integrantes: "Miguel Gonzalez - Patricio Fernandez", 
+                clase: "grupo-D",
+                color: "#fce4ec"
+            }
+        };
+        localStorage.removeItem('gruposConfig');
+        mostrarInterfazGrupos();
+        alert('Grupos reiniciados a valores por defecto.');
+    }
+}
+
+// Modificar la función guardarCambiosGrupos para verificar permisos
+function guardarCambiosGrupos() {
+    if (!isAdminAuthenticated) {
+        alert('🔒 Acceso denegado. Debe iniciar sesión como administrador.');
+        return;
+    }
+    
+    try {
+        localStorage.setItem('gruposConfig', JSON.stringify(Grupo));
+        alert('✅ Cambios guardados correctamente. Los grupos se mantendrán después de recargar la página.');
+        
+        actualizarInfoGrupos();
+        actualizarLeyendaGrupos();
+        actualizarEstilosGrupos();
+        forzarActualizacionColores();
+        
+        // Volver a la vista principal
+        setTimeout(() => {
+            mostrarVistaPrincipal();
+        }, 500);
+        
+    } catch (error) {
+        alert('❌ Error al guardar los cambios: ' + error.message);
+    }
+}
+
+// Cargar verificación de sesión al iniciar
+document.addEventListener('DOMContentLoaded', function() {
+    cargarGruposGuardados();
+    mostrarVistaPrincipal();
+    verificarSesionActiva(); // Verificar sesión al cargar la página
+});
+        // Datos iniciales de grupos
+        let Grupo = {
+            A: { 
+                grupo: "A", 
+                integrantes: "Juan Cachope - Tiago Santana", 
+                clase: "grupo-A",
+                color: "#e3f2fd"
+            },
+            B: { 
+                grupo: "B", 
+                integrantes: "Alvaro Aguilar - Arnaldo Larroza", 
+                clase: "grupo-B",
+                color: "#e8f5e9"
+            },
+            C: { 
+                grupo: "C", 
+                integrantes: "Lisandro Centurion - Abel Salinas", 
+                clase: "grupo-C",
+                color: "#fff3e0"
+            },
+            D: { 
+                grupo: "D", 
+                integrantes: "Miguel Gonzalez - Patricio Fernandez", 
+                clase: "grupo-D",
+                color: "#fce4ec"
+            }
+        };
+
+        // Funciones para cambiar entre vistas
+        function mostrarVistaPrincipal() {
+    document.getElementById('vistaPrincipal').style.display = 'block';
+    document.getElementById('vistaGestionGrupos').style.display = 'none';
+    
+    // Cerrar sesión admin automáticamente al salir
+    if (isAdminAuthenticated) {
+        cerrarSesionAdmin();
+    }
+}
+        function mostrarGestionGrupos() {
+            document.getElementById('vistaPrincipal').style.display = 'none';
+            document.getElementById('vistaGestionGrupos').style.display = 'block';
+            // Asegurarse de que la interfaz de grupos esté actualizada
+            mostrarInterfazGrupos();
+        }
+
+        // Cargar grupos guardados al iniciar
+        function cargarGruposGuardados() {
+            const gruposGuardados = localStorage.getItem('gruposConfig');
+            if (gruposGuardados) {
+                Grupo = JSON.parse(gruposGuardados);
+            }
+            actualizarInfoGrupos();
+            actualizarLeyendaGrupos();
+        }
+
+        // Mostrar interfaz de grupos
+        function mostrarInterfazGrupos() {
+            const container = document.getElementById('grupos-container');
+            container.innerHTML = '';
+            
+            Object.keys(Grupo).forEach(grupoKey => {
+                const grupo = Grupo[grupoKey];
+                container.innerHTML += `
+                    <div class="grupo-editable" style="border-left-color: ${grupo.color}">
+                        <h5>Grupo ${grupoKey}</h5>
+                        <label>Integrantes:</label>
+                        <input type="text" value="${grupo.integrantes}" 
+                               onchange="actualizarGrupo('${grupoKey}', 'integrantes', this.value)"
+                               placeholder="Integrantes del grupo">
+                        <label>Color:</label>
+                        <input type="color" value="${grupo.color}" 
+                               onchange="actualizarGrupo('${grupoKey}', 'color', this.value)">
+                        <button onclick="eliminarGrupoUI('${grupoKey}')">
+                            <i class="fas fa-trash me-1"></i>Eliminar Grupo
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        // Actualizar un grupo
+        function actualizarGrupo(grupoKey, campo, valor) {
+            if (Grupo[grupoKey]) {
+                Grupo[grupoKey][campo] = valor;
+                // Actualizar visualmente el borde del color
+                const elementos = document.querySelectorAll(`[style*="border-left-color:"]`);
+                elementos.forEach(el => {
+                    if (el.querySelector('h5').textContent === `Grupo ${grupoKey}`) {
+                        el.style.borderLeftColor = campo === 'color' ? valor : Grupo[grupoKey].color;
+                    }
+                });
+            }
+        }
+
+        // Agregar nuevo grupo
+        function agregarNuevoGrupo() {
+            const nuevoKey = prompt("Ingresa la letra del nuevo grupo (E, F, G, etc.):");
+            if (nuevoKey && nuevoKey.trim() !== "") {
+                const key = nuevoKey.trim().toUpperCase();
+                if (!Grupo[key]) {
+                    Grupo[key] = {
+                        grupo: key,
+                        integrantes: "Nuevo integrante 1 - Nuevo integrante 2",
+                        clase: `grupo-${key}`,
+                        color: "#" + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')
+                    };
+                    mostrarInterfazGrupos();
+                } else {
+                    alert(`El grupo ${key} ya existe.`);
+                }
+            }
+        }
+
+        // Eliminar grupo
+        function eliminarGrupoUI(grupoKey) {
+            if (Object.keys(Grupo).length <= 1) {
+                alert("Debe haber al menos un grupo.");
+                return;
+            }
+            
+            if (confirm(`¿Estás seguro de eliminar el Grupo ${grupoKey}?`)) {
+                delete Grupo[grupoKey];
+                mostrarInterfazGrupos();
+            }
+        }
+
+        // Guardar cambios permanentemente
+        function guardarCambiosGrupos() {
+            try {
+                localStorage.setItem('gruposConfig', JSON.stringify(Grupo));
+                alert('✅ Cambios guardados correctamente. Los grupos se mantendrán después de recargar la página.');
+                console.log('Grupos guardados:', Grupo);
+                actualizarInfoGrupos();
+                actualizarLeyendaGrupos();
+                // Recargar la tabla para aplicar cambios
+                if (typeof generarTabla === 'function') {
+                    generarTabla();
+                }
+                // Volver a la vista principal
+                mostrarVistaPrincipal();
+            } catch (error) {
+                alert('❌ Error al guardar los cambios: ' + error.message);
+            }
+        }
+
+        // Reiniciar grupos a valores por defecto
+        function reiniciarGrupos() {
+            if (confirm('¿Restaurar grupos a valores por defecto? Se perderán los cambios no guardados.')) {
+                Grupo = {
+                    A: { 
+                        grupo: "A", 
+                        integrantes: "Juan Cachope - Tiago Santana", 
+                        clase: "grupo-A",
+                        color: "#e3f2fd"
+                    },
+                    B: { 
+                        grupo: "B", 
+                        integrantes: "Alvaro Aguilar - Arnaldo Larroza", 
+                        clase: "grupo-B",
+                        color: "#e8f5e9"
+                    },
+                    C: { 
+                        grupo: "C", 
+                        integrantes: "Lisandro Centurion - Abel Salinas", 
+                        clase: "grupo-C",
+                        color: "#fff3e0"
+                    },
+                    D: { 
+                        grupo: "D", 
+                        integrantes: "Miguel Gonzalez - Patricio Fernandez", 
+                        clase: "grupo-D",
+                        color: "#fce4ec"
+                    }
+                };
+                localStorage.removeItem('gruposConfig');
+                mostrarInterfazGrupos();
+                alert('Grupos reiniciados a valores por defecto.');
+            }
+        }
+
+        // Actualizar la información de grupos en la tarjeta - CORREGIDO
+        function actualizarInfoGrupos() {
+            const container = document.getElementById('info-grupos-container');
+            container.innerHTML = '';
+            
+            Object.keys(Grupo).forEach(grupoKey => {
+                const grupo = Grupo[grupoKey];
+                container.innerHTML += `
+                    <div class="col-md-3 mb-3">
+                        <div class="card grupo-card" style="background-color: ${grupo.color}; border-left-color: ${this.oscurecerColor(grupo.color, 30)}">
+                            <div class="card-body">
+                                <h5 class="card-title">Grupo ${grupoKey}</h5>
+                                <p class="card-text">${grupo.integrantes.replace(' - ', '<br>')}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Función para oscurecer un color (para el borde)
+        function oscurecerColor(color, cantidad) {
+            // Eliminar el # si está presente
+            color = color.replace('#', '');
+            
+            // Convertir a RGB
+            let r = parseInt(color.substr(0, 2), 16);
+            let g = parseInt(color.substr(2, 2), 16);
+            let b = parseInt(color.substr(4, 2), 16);
+            
+            // Oscurecer
+            r = Math.max(0, r - cantidad);
+            g = Math.max(0, g - cantidad);
+            b = Math.max(0, b - cantidad);
+            
+            // Volver a HEX
+            return '#' + 
+                   r.toString(16).padStart(2, '0') + 
+                   g.toString(16).padStart(2, '0') + 
+                   b.toString(16).padStart(2, '0');
+        }
+
+        // Actualizar la leyenda de grupos con colores dinámicos
+        function actualizarLeyendaGrupos() {
+            const leyendaContainer = document.getElementById('leyenda-grupos');
+            let leyendaHTML = '<strong>Leyenda de Grupos:</strong> ';
+            
+            Object.keys(Grupo).forEach(grupoKey => {
+                const grupo = Grupo[grupoKey];
+                leyendaHTML += `
+                    <span class="legend-item">
+                        <span class="legend-color-dinamico" style="background-color: ${grupo.color}"></span>
+                        Grupo ${grupoKey}
+                    </span>
+                `;
+            });
+            
+            // Agregar el item "Libre" que siempre está presente
+            leyendaHTML += `
+                <span class="legend-item">
+                    <span class="legend-color grupo-libre"></span>
+                    Libre
+                </span>
+            `;
+            
+            leyendaContainer.innerHTML = leyendaHTML;
+        }
+
+        // Cargar todo al iniciar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarGruposGuardados();
+            // Mostrar vista principal por defecto
+            mostrarVistaPrincipal();
+        });
+		//****************************
+		// Función mejorada para aplicar colores dinámicos a la tabla
+    function aplicarColoresDinamicosATabla() {
+        console.log('Aplicando colores dinámicos a la tabla...');
+        
+        Object.keys(Grupo).forEach(grupoKey => {
+            const grupo = Grupo[grupoKey];
+            
+            // Buscar celdas por clase CSS
+            const celdasPorClase = document.querySelectorAll(`.${grupo.clase}`);
+            celdasPorClase.forEach(celda => {
+                celda.style.backgroundColor = grupo.color;
+                celda.style.borderColor = oscurecerColor(grupo.color, 30);
+                celda.style.color = '#000000';
+                celda.style.fontWeight = 'bold';
+            });
+            
+            // También buscar celdas que contengan el texto del grupo (por si las clases no se aplican)
+            const celdasPorTexto = document.querySelectorAll('.celda-turno, .celda-turno-dia');
+            celdasPorTexto.forEach(celda => {
+                if (celda.textContent.trim() === grupoKey) {
+                    celda.style.backgroundColor = grupo.color;
+                    celda.style.borderColor = oscurecerColor(grupo.color, 30);
+                    celda.style.color = '#000000';
+                    celda.style.fontWeight = 'bold';
+                }
+            });
+        });
+        
+        console.log('Colores aplicados a', document.querySelectorAll('[style*="background-color"]').length, 'celdas');
+    }
+
+    // Función para forzar la actualización de colores (más agresiva)
+    function forzarActualizacionColores() {
+        aplicarColoresDinamicosATabla();
+        
+        // También actualizar estilos CSS dinámicos
+        actualizarEstilosGrupos();
+        
+        // Y actualizar la vista si es necesario
+        if (typeof turnosSystem !== 'undefined' && typeof turnosSystem.generarTablaMesActual === 'function') {
+            setTimeout(() => {
+                turnosSystem.generarTablaMesActual();
+                // Aplicar colores nuevamente después de regenerar
+                setTimeout(aplicarColoresDinamicosATabla, 200);
+            }, 100);
+        }
+    }
+
+    // Modificar la función guardarCambiosGrupos para forzar actualización
+    function guardarCambiosGrupos() {
+        try {
+            localStorage.setItem('gruposConfig', JSON.stringify(Grupo));
+            alert('✅ Cambios guardados correctamente. Los grupos se mantendrán después de recargar la página.');
+            console.log('Grupos guardados:', Grupo);
+            
+            actualizarInfoGrupos();
+            actualizarLeyendaGrupos();
+            actualizarEstilosGrupos();
+            forzarActualizacionColores(); // <- Usar la función mejorada
+            
+            // Volver a la vista principal
+            setTimeout(() => {
+                mostrarVistaPrincipal();
+            }, 500);
+            
+        } catch (error) {
+            alert('❌ Error al guardar los cambios: ' + error.message);
+        }
+    }
+
+    // Interceptar la función generarTabla del sistema de turnos
+    if (typeof turnosSystem !== 'undefined') {
+        // Guardar referencia a la función original
+        const generarTablaMesActualOriginal = turnosSystem.generarTablaMesActual;
+        
+        // Sobrescribir la función
+        turnosSystem.generarTablaMesActual = function() {
+            // Llamar a la función original
+            if (generarTablaMesActualOriginal) {
+                generarTablaMesActualOriginal.apply(this, arguments);
+            }
+            
+            // Aplicar colores dinámicos después de que se genere la tabla
+            setTimeout(() => {
+                aplicarColoresDinamicosATabla();
+            }, 150);
+        };
+    }
+
+    // También interceptar window.generarTabla por si acaso
+    const generarTablaOriginal = window.generarTabla;
+    window.generarTabla = function() {
+        if (generarTablaOriginal) {
+            generarTablaOriginal();
+        }
+        setTimeout(aplicarColoresDinamicosATabla, 150);
+    };
+
+    // Aplicar colores cuando se carga la página
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarGruposGuardados();
+        mostrarVistaPrincipal();
+        
+        // Aplicar colores después de que todo esté cargado
+        setTimeout(() => {
+            forzarActualizacionColores();
+        }, 1000);
+    });
+
+    // También aplicar colores cuando se cambia de vista
+    /*function cambiarVista() {
+        // Llamar a la función original si existe
+        if (typeof window.cambiarVistaOriginal === 'function') {
+            window.cambiarVistaOriginal();
+        }
+        
+        // Aplicar colores después del cambio
+        setTimeout(forzarActualizacionColores, 300);
+    }
+
+    // Guardar la función original de cambiarVista si existe
+    if (typeof window.cambiarVista === 'function' && window.cambiarVista !== cambiarVista) {
+        window.cambiarVistaOriginal = window.cambiarVista;
+        window.cambiarVista = cambiarVista;
+    }*/
+</script>
+
+<script>
+    // Función mejorada para actualizar estilos CSS dinámicos
+    function actualizarEstilosGrupos() {
+        // Eliminar estilos anteriores si existen
+        const estilosAnteriores = document.getElementById('estilos-dinamicos-grupos');
+        if (estilosAnteriores) {
+            estilosAnteriores.remove();
+        }
+
+        // Crear nuevos estilos
+        const style = document.createElement('style');
+        style.id = 'estilos-dinamicos-grupos';
+        
+        let css = '';
+        
+        // Generar CSS para cada grupo
+        Object.keys(Grupo).forEach(grupoKey => {
+            const grupo = Grupo[grupoKey];
+            const colorOscuro = oscurecerColor(grupo.color, 30);
+            
+            css += `
+                /* Estilos para la clase del grupo */
+                .${grupo.clase} {
+                    background-color: ${grupo.color} !important;
+                    color: #000000 !important;
+                    font-weight: bold !important;
+                    border: 1px solid ${colorOscuro} !important;
+                }
+                
+                /* Estilos específicos para celdas de turnos */
+                .celda-turno.${grupo.clase},
+                .celda-turno-dia.${grupo.clase},
+                .tabla-turnos .${grupo.clase},
+                [class*="${grupo.clase}"] {
+                    background-color: ${grupo.color} !important;
+                    border-color: ${colorOscuro}
+
+ !important;
+                    color: #000000 !important;
+                    font-weight: bold !important;
+                }
+                
+                /* Estilos para la leyenda */
+                .legend-color.${grupo.clase} {
+                    background-color: ${grupo.color} !important;
+                    border: 1px solid ${colorOscuro} !important;
+                }
+            `;
+        });
+
+        style.innerHTML = css;
+        document.head.appendChild(style);
+        console.log('Estilos CSS dinámicos actualizados');
+    }
+
+
+    </script>
+	
+	<script>
+    // Sobreescribir la función que asigna clases a las celdas de turnos (si es necesario)
+    function asignarColorTurno(grupo) {
+        if (Grupo[grupo]) {
+            return Grupo[grupo].clase;
+        }
+        return 'grupo-libre'; // Para días libres
+    }
+
+    // Si necesitas modificar cómo se generan las celdas en tu tabla:
+    function generarCeldaTurno(dia, grupo) {
+        const claseGrupo = asignarColorTurno(grupo);
+        return `
+            <div class="celda-turno ${claseGrupo}">
+                ${grupo || ''}
+            </div>
+        `;
+    }
+</script>
+</body>
+</html>
