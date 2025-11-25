@@ -545,7 +545,7 @@ function imprimirVistaAnualUnaHoja() {
             
             /* Estilos de grupos */
             .grupo-A { background-color: #e3f2fd !important; }
-            .grupo-B { background-color: #e8f5e9 !important; }
+            .grupo-B { background-color: #51D927 !important; }
             .grupo-C { background-color: #fff3e0 !important; }
             .grupo-D { background-color: #fce4ec !important; }
             .grupo-libre { background-color: #f5f5f5 !important; }
