@@ -1,8 +1,8 @@
 :root {
-    --grupo-a: #e3f2fd;
-    --grupo-b: #e8f5e9;
-    --grupo-c: #fff3e0;
-    --grupo-d: #fce4ec;
+    --grupo-a: rgb(75, 247, 158);
+    --grupo-b: rgb(255, 120, 87);
+    --grupo-c: rgb(251, 253, 119);
+    --grupo-d: rgb(106, 195, 251);
     --grupo-libre: #f5f5f5;
 }
 
