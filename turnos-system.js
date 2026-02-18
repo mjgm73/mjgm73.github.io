@@ -31,7 +31,7 @@ class TurnosSystem {
                 grupo: "A", 
                 integrantes: "Juan Cachope - Tiago Santana", 
                 clase: "grupo-A",
-                color: "#e3f2fd"
+                color: "#1976d2"
             },
             B: { 
                 grupo: "B", 
