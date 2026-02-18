@@ -371,7 +371,7 @@ function imprimirVistaMensual() {
                 margin: 0.5cm;
             }
             
-            .grupo-A { background-color: #e3f2fd !important; }
+            .grupo-A { background-color: #1976d2 !important; }
             .grupo-B { background-color: #e8f5e9 !important; }
             .grupo-C { background-color: #fff3e0 !important; }
             .grupo-D { background-color: #fce4ec !important; }
